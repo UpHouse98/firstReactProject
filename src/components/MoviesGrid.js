@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "../styles.css";
+import MovieCard from "./MovieCard";
 
 export default function MoviesGrid() {
   const [movies, setMovies] = useState([]);
+  const [searchTerm, setSearchTerm] = useState([]);
+  const [genre, setGenre] = useState("All Genres");
+  const [rating, setRating] = useState("All");
 
   useEffect(() => {
     fetch("movies.json")
@@ -10,18 +14,53 @@ export default function MoviesGrid() {
       .then((data) => setMovies(data));
   }, []);
 
+  const handleSearchState = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredMovies = movies.filter((movie) =>
+    movie.title
+      .toString()
+      .toLowerCase()
+      .includes(searchTerm.toString().toLowerCase())
+  );
+
   return (
-    <div className="movies-grid">
-      {movies.map((movie) => (
-        <div key={movie.id} className="movie-card">
-          <img src={`images/${movie.image}`} alt={movie.title}></img>
-          <div className="movie-card-info">
-            <h3 className="movie-card-title">{movie.title}</h3>
-            <p className="movie-card-genre">{movie.genre}</p>
-            <p className="movie-card-rating">{movie.rating}</p>
-          </div>
+    <div>
+      <input
+        type="text"
+        className="search-input"
+        placeholder="Search movies..."
+        value={searchTerm}
+        onChange={handleSearchState}
+      />
+
+      <div className="filter-bar">
+        <div className="filter-slot">
+          <label>Genre</label>
+          <select>
+            <option>All</option>
+            <option>Action</option>
+            <option>Drama</option>
+            <option>Fantacy</option>
+            <option>Horror</option>
+          </select>
         </div>
-      ))}
+        <div className="filter-slot">
+          <label>Rating</label>
+          <select>
+            <option>All</option>
+            <option>Good</option>
+            <option>Ok</option>
+            <option>Bad</option>
+          </select>
+        </div>
+      </div>
+      <div className="movies-grid">
+        {filteredMovies.map((movie) => (
+          <MovieCard movie={movie} key={movie.id}></MovieCard>
+        ))}
+      </div>
     </div>
   );
 }
